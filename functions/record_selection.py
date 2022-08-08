@@ -1,43 +1,28 @@
+from tkinter import *
 
-select_record = '''
-    
-selected = my_tree.focus()
 
-values = my_tree.item(selected, 'values')
+def selectRecord(tree, labels,boxes):
 
-n = 0
+    selected = tree.focus()
 
-for item in my_tree['columns']:
-    lbl = Label(data_frame, text=item)
-    lbl.grid(row=n, column=1, padx=10, pady=10)
-    lbls.append(lbl)
-    box = Entry(data_frame)
-    box.grid(row=n, column=2, padx=10, pady=10)
-    box.delete(0,END)
-    box.insert(0,values[n])
-    boxes.append(box)
-    n += 1
-'''
+    values = tree.item(selected, 'values')
 
-# def sr_1(tree, frame, lbls, boxes):
+    n = 0
 
-#     selected = tree.focus()
+    for label in labels:
+        label.grid(row=n, column=1, padx=10, pady=10)
+        n += 1
+        
+    n = 0
 
-#     values = tree.item(selected, 'values')
+    for box in boxes:
+        box.grid(row=n, column=2, padx=10, pady=10)
+        box.delete(0,END)
+        box.insert(0,values[n])
+        n += 1
 
-#     n = 0
-
-#     lbls = []
-#     boxes = []
-#     columns = tree['columns']
-
-#     for item in columns:
-#         lbl = Label(frame, text=item)
-#         lbl.grid(row=n, column=1, padx=10, pady=10)
-#         lbls.append(lbl)
-#         box = Entry(frame)
-#         box.grid(row=n, column=2, padx=10, pady=10)
-#         box.delete(0,END)
-#         box.insert(0,values[n])
-#         boxes.append(box)
-#         n += 1
+def getRecord(boxes, updates):
+    for item in boxes:
+        v = item.get()
+        updates.append(v)
+        print(v)
