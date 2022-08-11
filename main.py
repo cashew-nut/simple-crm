@@ -44,8 +44,10 @@ from sqlalchemy import create_engine
 from sqlalchemy import text
 engine = create_engine(config.mysql_url + config.user + ":" + config.password + "@" + config.host_name + "/" + config.schema)
 
-
 animals = pd.read_sql('SELECT * FROM simple_crm.animals', con=engine)
+
+engine.connect().close()
+
 active_table = animals
 
 my_tree['columns'] = list(active_table.columns)
@@ -87,7 +89,7 @@ data_frame.pack(fill="x", expand='yes', padx=20)
 
 #building boxes dynamically
 
-from functions.record_selection import selectRecord, getRecord
+from functions.record_selection import selectRecord, updateRecord
 
 bxs = []
 for b in my_tree['columns']:
@@ -100,8 +102,10 @@ for l in my_tree['columns']:
     l=Label(data_frame, text=l)
     #i.pack()
     lbls.append(l)
-        
-updts = []   
+
+
+tbl_columns = list(active_table.columns)
+
 
 # double click to select. This is bad as it's using global variables in a functions scope   
 def onDouble(selected):
@@ -112,10 +116,10 @@ my_tree.bind("<Double-1>", onDouble)
 
 #adding buttons
 
-select_record_button = Button(button_frame, text="Select Record", command= lambda: selectRecord(my_tree,lbls,bxs))
+select_record_button = Button(button_frame, text="jtaskSelect Record", command= lambda: selectRecord(my_tree,lbls,bxs))
 select_record_button.grid(row=0, column=1, padx=10, pady=10)
 
-select_record_button = Button(button_frame, text="Update Record", command= lambda: getRecord(bxs, updts))
+select_record_button = Button(button_frame, text="Update Record", command= lambda: updateRecord(bxs, tbl_columns))
 select_record_button.grid(row=0, column=2, padx=10, pady=10)
 
 root.mainloop()
