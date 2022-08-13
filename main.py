@@ -1,7 +1,5 @@
 from tkinter import *
 from tkinter import ttk
-import pandas as pd
-import config
 
 root = Tk()
 root.title("Cash CRM")
@@ -43,69 +41,18 @@ my_tree.pack()
 # configure scrollbar
 tree_scroll.config(command=my_tree.yview)
 
-from sqlalchemy import create_engine
-from sqlalchemy import text
+# get db tables
+from functions.database_ops import *
 
-engine = create_engine(
-    config.mysql_url
-    + config.user
-    + ":"
-    + config.password
-    + "@"
-    + config.host_name
-    + "/"
-    + config.schema
-)
+active_table_name = 'animals'
 
-animals = pd.read_sql("SELECT * FROM simple_crm.animals", con=engine)
+active_table = pullTable(active_table_name)
 
-engine.connect().close()
+# configure the treeview
+from functions.treeview import *
 
-active_table = animals
+configureTree(my_tree, active_table)
 
-my_tree["columns"] = list(active_table.columns)
-
-# format columns
-my_tree.column("#0", width=0, stretch=NO)
-for column in my_tree["columns"]:
-    my_tree.column(column, anchor=CENTER, width=140)
-
-# name headers
-my_tree.heading("#0", text="", anchor=W)
-for column in my_tree["columns"]:
-    my_tree.heading(column, text=column, anchor=CENTER)
-
-# create striped row tags
-my_tree.tag_configure("oddrow", background="white")
-my_tree.tag_configure("evenrow", background="lightblue")
-
-# add our data to the screen
-global count
-count = 0
-
-column_count = active_table.shape[1]
-
-for record in active_table.values:
-    if count % 2 == 0:
-        my_tree.insert(
-            parent="",
-            index="end",
-            iid=count,
-            text="",
-            values=(list(record[0:column_count])),
-            tags=("evenrow",),
-        )
-    else:
-        my_tree.insert(
-            parent="",
-            index="end",
-            iid=count,
-            text="",
-            values=(list(record[0:column_count])),
-            tags=("oddrow",),
-        )
-    # increment counter
-    count += 1
 
 # add buttons and record entry boxes
 button_frame = LabelFrame(root, text="Commands")
@@ -116,7 +63,7 @@ data_frame.pack(fill="x", expand="yes", padx=20)
 
 # building boxes dynamically
 
-from functions.record_selection import selectRecord, updateRecord, insertValuesToBox
+from functions.record_selection import *
 
 bxs = []
 for b in my_tree["columns"]:
@@ -153,8 +100,9 @@ select_record_button.grid(row=0, column=1, padx=10, pady=10)
 select_record_button = Button(
     button_frame,
     text="Update Record",
-    command=lambda: updateRecord(my_tree, bxs, tbl_columns),
+    command=lambda: updateRecord(my_tree, bxs, tbl_columns, active_table_name),
 )
 select_record_button.grid(row=0, column=2, padx=10, pady=10)
+
 
 root.mainloop()
