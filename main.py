@@ -66,15 +66,19 @@ data_frame.pack(fill="x", expand="yes", padx=20)
 from functions.record_selection import *
 
 bxs = []
-for b in my_tree["columns"]:
-    b = Entry(data_frame)
-    # i.pack()
+for n, b in enumerate(my_tree["columns"]):
+    if n == 0:
+        b = Entry(data_frame, state='readonly')
+    else:
+        b = Entry(data_frame)
+    b.grid(row=n, column=2, padx=10, pady=10)
     bxs.append(b)
+    
 
 lbls = []
-for l in my_tree["columns"]:
+for n, l in enumerate(my_tree["columns"]):
     l = Label(data_frame, text=l)
-    # i.pack()
+    l.grid(row=n, column=1, padx=10, pady=10)
     lbls.append(l)
 
 
@@ -85,8 +89,13 @@ tbl_columns = list(active_table.columns)
 def onDouble(selected):
     insertValuesToBox(my_tree, lbls, bxs)
 
+def onReturn(selected):
+    updateRecord(my_tree, bxs, tbl_columns, active_table_name)
+
 
 my_tree.bind("<Double-1>", onDouble)
+root.bind("<Return>", onReturn)
+
 
 # adding buttons
 
@@ -97,12 +106,26 @@ select_record_button = Button(
 )
 select_record_button.grid(row=0, column=1, padx=10, pady=10)
 
-select_record_button = Button(
+create_new_record_button = Button(
     button_frame,
-    text="Update Record",
+    text="Create New Record",
+    command=lambda: createNew(lbls, bxs, my_tree),
+)
+
+create_new_record_button.grid(row=0, column=2, padx=10, pady=10)
+
+save_to_database_button = Button(
+    button_frame,
+    text="Save to Database",
     command=lambda: updateRecord(my_tree, bxs, tbl_columns, active_table_name),
 )
-select_record_button.grid(row=0, column=2, padx=10, pady=10)
+save_to_database_button.grid(row=0, column=3, padx=10, pady=10)
 
+delete_record_button = Button(
+    button_frame,
+    text="Delete Record",
+    command=lambda: deleteRecord(my_tree, active_table_name, bxs),
+)
+delete_record_button.grid(row=0, column=4, padx=10, pady=10)
 
 root.mainloop()
