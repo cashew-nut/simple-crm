@@ -3,6 +3,36 @@ import tkinter
 from functions.database_ops import *
 from functions.treeview import *
 
+
+def positionRecordBoxes(bxs: list):  
+    for n, b in enumerate(bxs):
+        b.delete(0,END)
+        b.grid(row=n, column=2, padx=10, pady=10)
+
+    
+def positionRecordLabels(lbls: list):
+    for n, l in enumerate(lbls):
+        l.grid(row=n, column=1, padx=10, pady=10)
+
+def refreshAfterUpdate(frame: tkinter, tree: tkinter, boxes: list, active_table_name: str):
+    data = pullTable(active_table_name)
+    
+    try:
+        frame.pack_forget()
+    except:
+        print('no frame packed')
+
+    #clear old tree
+    for i in tree.get_children():
+        tree.delete(i)
+    
+    # clear boxes
+    for box in boxes:
+        box.delete(0, END)
+    
+    #refresh tree
+    configureTree(tree, data)
+
 def selectRecord(tree: tkinter) -> list:
 
     selected = tree.focus()
@@ -12,19 +42,35 @@ def selectRecord(tree: tkinter) -> list:
     return list(values)
 
 
-def insertValuesToBox(tree, labels, boxes):
+def insertValuesToBox(tree: tkinter, labels: list, boxes: list, frame: tkinter, tbl_name: str):
+
+    try:
+        frame.pack_forget()
+    except:
+        print('no frame packed')
+
 
     values = selectRecord(tree)
 
-    for n, label in enumerate(labels):
-        label.grid(row=n, column=1, padx=10, pady=10)
+    positionRecordBoxes(boxes)
+    positionRecordLabels(labels)
+
+    frame.pack(fill="x", expand="yes", padx=20)
 
     for n, box in enumerate(boxes):
-        box.grid(row=n, column=2, padx=10, pady=10)
-        box.delete(0, END)
+        # box.delete(0, END)
         box.insert(0, values[n])
+    
+    save_to_database_button = Button(
+    frame,
+    text="Update Database",
+    command=lambda: updateRecord(tree, boxes, tbl_name, frame),
+    )
+    save_to_database_button.grid(row= len(boxes) + 1, column=2, padx=10, pady=10)
 
-def updateRecord(tree: tkinter, boxes: list, columns: list, tbl_name: str):
+def updateRecord(tree: tkinter, boxes: list, tbl_name: str, frame: tkinter):
+
+    columns = list(tree['columns'])
 
     values = selectRecord(tree)
 
@@ -34,19 +80,10 @@ def updateRecord(tree: tkinter, boxes: list, columns: list, tbl_name: str):
 
     connection = myConnection()
 
-    #check to see if this is a new record or update of old
-    if len(values) > 0:
-        insert = FALSE
-    else:
-        insert = TRUE
-
     #format update dictionary
     for n, item in enumerate(boxes):
         v = item.get()
-        if insert == FALSE:
-            update = {values[n]: v}
-        else:
-            update = {'': v}
+        update = {values[n]: v}
         updates[columns[n]] = update
 
     #extract just the changed values that need updating / inserting
@@ -57,7 +94,7 @@ def updateRecord(tree: tkinter, boxes: list, columns: list, tbl_name: str):
             changes.append(item)
 
     #change action depending on update or insert
-    if len(changes) > 0 and insert == FALSE:
+    if len(changes) > 0:
         for item in changes:
             nv = str(list(updates[item].values())[0])
             ov = list(updates[item].keys())[0]
@@ -68,60 +105,65 @@ def updateRecord(tree: tkinter, boxes: list, columns: list, tbl_name: str):
             except:
                 print(f"Could not update record id {id}, field {item}, from {ov} to {nv}")
         
-    elif len(changes) > 0 and insert == TRUE: 
-        iv = [str(list(updates[item].values())[0]) for item in changes]
-        iv_string = ', '.join(f"'{item}'" for item in iv)
-        column_string = ', '.join(f"`{item}`" for item in columns) #note mysql column reference syntax
-        try:
-            connection.execute(f"INSERT INTO {tbl_name} ({column_string}) VALUES (DEFAULT, {iv_string})")
-            print(f"new record: ({column_string}) VALUES (DEFAULT, {iv_string})")
-        except:
-            print(f("insertion faild"))
-
-    df = pullTable(tbl_name)
-
-    #clear old tree
-    for i in tree.get_children():
-        tree.delete(i)
-    
-    # clear boxes
-    for box in boxes:
-        box.delete(0, END)
-    
-    #refresh tree
-    configureTree(tree, df)
+        refreshAfterUpdate(frame, tree, boxes, tbl_name)
     
 
-def createNew(labels: list, boxes: list, tree: tkinter): 
-    for n, label in enumerate(labels):
-        label.grid(row=n, column=1, padx=10, pady=10)
+def createNewRecordFrame(tree: tkinter, active_table_name: str, frame: tkinter, boxes: list, labels: list):
 
-    for n, box in enumerate(boxes):
-        box.grid(row=n, column=2, padx=10, pady=10)
-        box.delete(0, END)
-    
-    tree.selection_clear()
+    try:
+        frame.pack_forget()
+    except:
+        print('no frame packed')
+
+    positionRecordBoxes(boxes)
+    positionRecordLabels(labels)
+
+    frame.pack(fill="x", expand="yes", padx=20)
+
+    save_to_database_button = Button(
+    frame,
+    text="Save New Record to Database",
+    command=lambda: saveNew(tree, boxes, active_table_name, frame),
+    )
+    save_to_database_button.grid(row= len(boxes) + 1, column=2, padx=10, pady=10)
 
 
-def deleteRecord(tree: tkinter, tbl_name: str, boxes: list):
+def saveNew(tree: tkinter, boxes: list, active_table_name: str, frame: tkinter):
+
+    updates = []
+
+    columns = tree['columns']
+
+    connection = myConnection()
+
+    for n, item in enumerate(boxes):
+        if n > 0: #first is always id
+            v = item.get()
+            update = {columns[n]: v}
+            updates.append(update)
+
+    iv = [list(n.values()) for n in updates]
+    iv = [item for sublist in iv for item in sublist]
+    iv_string = ', '.join(f"'{item}'" for item in iv)
+    column_string = ', '.join(f"`{item}`" for item in columns) #note mysql column reference syntax
+    try:
+        connection.execute(f"INSERT INTO {active_table_name} ({column_string}) VALUES (DEFAULT, {iv_string})")
+        print(f"new record: ({column_string}) VALUES (DEFAULT, {iv_string})")
+    except:
+        print(f("insertion faild"))
+
+    refreshAfterUpdate(frame, tree, boxes, active_table_name)
+
+
+
+def deleteRecord(tree: tkinter, active_tbl_name: str, boxes: list, frame: tkinter):
     values = selectRecord(tree)
     id = values[0]
     connection = myConnection()
     try:
-        connection.execute(f'DELETE FROM {tbl_name} WHERE `id` = {id}')
+        connection.execute(f'DELETE FROM {active_tbl_name} WHERE `id` = {id}')
         print(f"the following record has been deleted: {values}")
     except:
         print(f"could not delete record: {values}")
 
-    df = pullTable(tbl_name)
-
-    #clear old tree
-    for i in tree.get_children():
-        tree.delete(i)
-    
-    # clear boxes
-    for box in boxes:
-        box.delete(0, END)
-    
-    #refresh tree
-    configureTree(tree, df)
+    refreshAfterUpdate(frame, tree, boxes, active_tbl_name)

@@ -1,6 +1,8 @@
 from tkinter import *
 from tkinter import ttk
 
+
+
 root = Tk()
 root.title("Cash CRM")
 root.iconbitmap()
@@ -59,7 +61,7 @@ button_frame = LabelFrame(root, text="Commands")
 button_frame.pack(fill="x", expand="yes", padx=20)
 
 data_frame = LabelFrame(root, text="Record")
-data_frame.pack(fill="x", expand="yes", padx=20)
+
 
 # building boxes dynamically
 
@@ -71,14 +73,12 @@ for n, b in enumerate(my_tree["columns"]):
         b = Entry(data_frame, state='readonly')
     else:
         b = Entry(data_frame)
-    b.grid(row=n, column=2, padx=10, pady=10)
     bxs.append(b)
     
 
 lbls = []
 for n, l in enumerate(my_tree["columns"]):
     l = Label(data_frame, text=l)
-    l.grid(row=n, column=1, padx=10, pady=10)
     lbls.append(l)
 
 
@@ -87,14 +87,14 @@ tbl_columns = list(active_table.columns)
 
 # double click to select. This is bad as it's using global variables in a functions scope
 def onDouble(selected):
-    insertValuesToBox(my_tree, lbls, bxs)
+    insertValuesToBox(my_tree, lbls, bxs, data_frame, active_table_name)
 
-def onReturn(selected):
-    updateRecord(my_tree, bxs, tbl_columns, active_table_name)
+# def onReturn(selected):
+#     updateRecord(my_tree, bxs, tbl_columns, active_table_name)
 
 
 my_tree.bind("<Double-1>", onDouble)
-root.bind("<Return>", onReturn)
+# root.bind("<Return>", onReturn)
 
 
 # adding buttons
@@ -102,30 +102,24 @@ root.bind("<Return>", onReturn)
 select_record_button = Button(
     button_frame,
     text="Select Record",
-    command=lambda: insertValuesToBox(my_tree, lbls, bxs),
+    command=lambda: insertValuesToBox(my_tree, lbls, bxs, data_frame, active_table_name),
 )
 select_record_button.grid(row=0, column=1, padx=10, pady=10)
 
 create_new_record_button = Button(
     button_frame,
     text="Create New Record",
-    command=lambda: createNew(lbls, bxs, my_tree),
+    command=lambda: createNewRecordFrame(my_tree, active_table_name, data_frame, bxs, lbls),
 )
-
 create_new_record_button.grid(row=0, column=2, padx=10, pady=10)
 
-save_to_database_button = Button(
-    button_frame,
-    text="Save to Database",
-    command=lambda: updateRecord(my_tree, bxs, tbl_columns, active_table_name),
-)
-save_to_database_button.grid(row=0, column=3, padx=10, pady=10)
 
 delete_record_button = Button(
     button_frame,
     text="Delete Record",
-    command=lambda: deleteRecord(my_tree, active_table_name, bxs),
+    command=lambda: deleteRecord(my_tree, active_table_name, bxs, data_frame),
 )
 delete_record_button.grid(row=0, column=4, padx=10, pady=10)
+
 
 root.mainloop()
