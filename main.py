@@ -69,10 +69,7 @@ from functions.record_selection import *
 
 bxs = []
 for n, b in enumerate(my_tree["columns"]):
-    if n == 0:
-        b = Entry(data_frame, state='readonly')
-    else:
-        b = Entry(data_frame)
+    b = Entry(data_frame)
     bxs.append(b)
     
 
@@ -113,13 +110,20 @@ create_new_record_button = Button(
 )
 create_new_record_button.grid(row=0, column=2, padx=10, pady=10)
 
-
 delete_record_button = Button(
     button_frame,
     text="Delete Record",
     command=lambda: deleteRecord(my_tree, active_table_name, bxs, data_frame),
 )
-delete_record_button.grid(row=0, column=4, padx=10, pady=10)
+delete_record_button.grid(row=0, column=3, padx=10, pady=10)
 
+clear_frame_button = Button(
+    button_frame,
+    text="Clear Frame",
+    command=lambda: clearFrame(data_frame),
+)
+clear_frame_button.grid(row=0, column=4, padx=10, pady=10)
 
 root.mainloop()
+
+

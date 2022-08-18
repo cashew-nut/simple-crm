@@ -3,6 +3,18 @@ import tkinter
 from functions.database_ops import *
 from functions.treeview import *
 
+def getChildren(frame):
+    _list = frame.winfo_children()
+
+    for item in _list :
+        if item.winfo_children() :
+            _list.extend(item.winfo_children())
+
+    return _list
+
+
+def clearFrame(frame: tkinter):
+    frame.pack_forget()
 
 def positionRecordBoxes(bxs: list):
     for n, b in enumerate(bxs):
@@ -49,21 +61,22 @@ def selectRecord(tree: tkinter) -> list:
 def insertValuesToBox(
     tree: tkinter, labels: list, boxes: list, frame: tkinter, tbl_name: str
 ):
-
-    try:
-        frame.pack_forget()
-    except:
-        print("no frame packed")
-
-    values = selectRecord(tree)
-
     positionRecordBoxes(boxes)
     positionRecordLabels(labels)
 
     frame.pack(fill="x", expand="yes", padx=20)
 
+    values = selectRecord(tree)
+
+    children = list(getChildren(frame))
+    
+    print(children)
+    for item in children:
+        item_string = str(item)
+        if '.!labelframe2.!button' in item_string:
+            item.destroy() # should change this to forget and stop recreating the buttons every time
+
     for n, box in enumerate(boxes):
-        # box.delete(0, END)
         box.insert(0, values[n])
 
     save_to_database_button = Button(
@@ -104,7 +117,7 @@ def updateRecord(tree: tkinter, boxes: list, tbl_name: str, frame: tkinter):
         for item in changes:
             nv = str(list(updates[item].values())[0])
             ov = list(updates[item].keys())[0]
-            id = list(updates["id"].keys())[0]
+            id = boxes[0].get()
             try:
                 connection.execute(
                     f"UPDATE {tbl_name} SET `{item}` = '{nv}' WHERE `id` = '{id}'",
@@ -123,23 +136,28 @@ def createNewRecordFrame(
     tree: tkinter, active_table_name: str, frame: tkinter, boxes: list, labels: list
 ):
 
-    try:
-        frame.pack_forget()
-    except:
-        print("no frame packed")
-
     positionRecordBoxes(boxes)
     positionRecordLabels(labels)
 
     frame.pack(fill="x", expand="yes", padx=20)
+
+    children = list(getChildren(frame))
+    
+    print(children)
+    for item in children:
+        item_string = str(item)
+        if '.!labelframe2.!button' in item_string:
+            item.destroy() # should change this to forget and stop recreating the buttons every time
 
     save_to_database_button = Button(
         frame,
         text="Save New Record to Database",
         command=lambda: saveNew(tree, boxes, active_table_name, frame),
     )
+
     save_to_database_button.grid(row=len(boxes) + 1, column=2, padx=10, pady=10)
 
+    
 
 def saveNew(tree: tkinter, boxes: list, active_table_name: str, frame: tkinter):
 
