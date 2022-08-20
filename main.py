@@ -2,7 +2,6 @@ from tkinter import *
 from tkinter import ttk
 
 
-
 root = Tk()
 root.title("Cash CRM")
 root.iconbitmap()
@@ -46,7 +45,7 @@ tree_scroll.config(command=my_tree.yview)
 # get db tables
 from functions.database_ops import *
 
-active_table_name = 'animals'
+active_table_name = "animals"
 
 active_table = pullTable(active_table_name)
 
@@ -71,7 +70,7 @@ bxs = []
 for n, b in enumerate(my_tree["columns"]):
     b = Entry(data_frame)
     bxs.append(b)
-    
+
 
 lbls = []
 for n, l in enumerate(my_tree["columns"]):
@@ -84,14 +83,15 @@ tbl_columns = list(active_table.columns)
 
 # double click to select. This is bad as it's using global variables in a functions scope
 def onDouble(selected):
-    insertValuesToBox(my_tree, lbls, bxs, data_frame, active_table_name)
+    insertValuesToBox(my_tree, lbls, bxs, data_frame)
 
-# def onReturn(selected):
-#     updateRecord(my_tree, bxs, tbl_columns, active_table_name)
+
+def onReturn(selected):
+    save(my_tree, bxs, active_table_name, data_frame)
 
 
 my_tree.bind("<Double-1>", onDouble)
-# root.bind("<Return>", onReturn)
+root.bind("<Return>", onReturn)
 
 
 # adding buttons
@@ -99,14 +99,14 @@ my_tree.bind("<Double-1>", onDouble)
 select_record_button = Button(
     button_frame,
     text="Select Record",
-    command=lambda: insertValuesToBox(my_tree, lbls, bxs, data_frame, active_table_name),
+    command=lambda: insertValuesToBox(my_tree, lbls, bxs, data_frame),
 )
 select_record_button.grid(row=0, column=1, padx=10, pady=10)
 
 create_new_record_button = Button(
     button_frame,
     text="Create New Record",
-    command=lambda: createNewRecordFrame(my_tree, active_table_name, data_frame, bxs, lbls),
+    command=lambda: createNewRecordFrame(data_frame, bxs, lbls),
 )
 create_new_record_button.grid(row=0, column=2, padx=10, pady=10)
 
@@ -124,6 +124,12 @@ clear_frame_button = Button(
 )
 clear_frame_button.grid(row=0, column=4, padx=10, pady=10)
 
+
+save_button = Button(
+    data_frame,
+    text="Save to Database",
+    command=lambda: save(my_tree, bxs, active_table_name, data_frame),
+)
+save_button.grid(row=len(bxs) + 1, column=2, padx=10, pady=10)
+
 root.mainloop()
-
-

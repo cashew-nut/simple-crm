@@ -1,20 +1,19 @@
 from tkinter import *
 
 
-
 def configureTree(tree, data: Frame):
 
-    tree['columns'] = list(data.columns)
+    tree["columns"] = list(data.columns)
 
     # format columns
     tree.column("#0", width=0, stretch=NO)
 
-    for column in tree['columns']:
+    for column in tree["columns"]:
         tree.column(column, anchor=CENTER, width=140)
 
     # name headers
     tree.heading("#0", text="", anchor=W)
-    for column in tree['columns']:
+    for column in tree["columns"]:
         tree.heading(column, text=column, anchor=CENTER)
 
     # create striped row tags
