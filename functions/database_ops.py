@@ -133,6 +133,7 @@ def refreshAfterUpdate(
     # clear boxes
     for box in boxes:
         box.delete(0, END)
+    
 
     # refresh tree
     configureTree(tree, data)

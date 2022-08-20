@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter import ttk
+import pandas as pd
 
 
 root = Tk()
@@ -45,9 +46,13 @@ tree_scroll.config(command=my_tree.yview)
 # get db tables
 from functions.database_ops import *
 
-active_table_name = "animals"
+active_table_name: str = "studies"
 
-active_table = pullTable(active_table_name)
+r_tbl_name: str = "study_organisations"
+
+active_table: pd.DataFrame = pullTable(active_table_name)
+
+r_tbl: pd.DataFrame = pullTable(r_tbl_name)
 
 # configure the treeview
 from functions.treeview import *
@@ -81,7 +86,7 @@ for n, l in enumerate(my_tree["columns"]):
 tbl_columns = list(active_table.columns)
 
 
-# double click to select. This is bad as it's using global variables in a functions scope
+# double click to select. 
 def onDouble(selected):
     insertValuesToBox(my_tree, lbls, bxs, data_frame)
 

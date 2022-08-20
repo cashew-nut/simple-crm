@@ -1,5 +1,4 @@
-from dis import Instruction
-from sre_parse import State
+
 from tkinter import *
 import tkinter
 from functions.database_ops import *
@@ -41,13 +40,16 @@ def insertValuesToBox(
     
     values = selectRecord(tree)
 
+    boxes[0].configure(state='normal')
+    
     positionRecordBoxes(boxes)
     positionRecordLabels(labels)
+
 
     for n, box in enumerate(boxes):
         box.insert(0, values[n])
 
-    
+    boxes[0].configure(state='readonly')
 
     config.btn_st = "Update"
 
@@ -57,9 +59,13 @@ def createNewRecordFrame(
     boxes: list,
     labels: list,
 ):
+    boxes[0].configure(state='normal')
 
     positionRecordBoxes(boxes)
     positionRecordLabels(labels)
+
+    boxes[0].configure(state='readonly')
+
 
     frame.pack(fill="x", expand="yes", padx=20)
 
