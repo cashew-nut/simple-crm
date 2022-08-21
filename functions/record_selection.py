@@ -34,8 +34,12 @@ def insertValuesToBox(
     tree: tkinter,
     labels: list,
     boxes: list,
+    parent_frame: tkinter,
     frame: tkinter,
 ):
+    
+    parent_frame.pack(fill="x", expand="yes", padx=20)
+
     frame.pack(fill="x", expand="yes", padx=20)
     
     values = selectRecord(tree)
@@ -55,6 +59,7 @@ def insertValuesToBox(
 
 
 def createNewRecordFrame(
+    parent_frame: tkinter,
     frame: tkinter,
     boxes: list,
     labels: list,
@@ -66,7 +71,7 @@ def createNewRecordFrame(
 
     boxes[0].configure(state='readonly')
 
-
+    parent_frame.pack(fill="x", expand="yes", padx=20)
     frame.pack(fill="x", expand="yes", padx=20)
 
     config.btn_st = "New"
