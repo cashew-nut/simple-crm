@@ -1,7 +1,9 @@
 from sqlalchemy import create_engine
 import config
 import pandas as pd
+import tkinter
 from functions.record_selection import *
+from functions.treeview import *
 
 
 def myConnection():
@@ -133,9 +135,7 @@ def refreshAfterUpdate(
     # clear boxes
     for box in boxes:
         box.delete(0, END)
-    
 
     # refresh tree
     configureTree(tree, data)
-
     clearFrame(frame)

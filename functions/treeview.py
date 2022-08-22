@@ -1,7 +1,10 @@
 from tkinter import *
+import tkinter
+import pandas as pd
+from functions.record_selection import selectRecord
 
 
-def configureTree(tree, data: Frame):
+def configureTree(tree: tkinter, data: pd.DataFrame):
 
     tree["columns"] = list(data.columns)
 
@@ -43,3 +46,17 @@ def configureTree(tree, data: Frame):
                 values=(list(record[0:column_count])),
                 tags=("oddrow",),
             )
+
+
+def configureRelatedTree(
+    tree: tkinter, data: pd.DataFrame, foreign_key_column: str, parent_tree: tkinter
+):
+
+    for i in tree.get_children():
+        tree.delete(i)
+
+    data = data[data[f"{foreign_key_column}"] == int(selectRecord(parent_tree)[0])]
+
+    configureTree(tree, data)
+
+    tree.pack()

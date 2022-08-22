@@ -1,8 +1,5 @@
-
 from tkinter import *
 import tkinter
-from functions.database_ops import *
-from functions.treeview import *
 import config
 
 
@@ -37,23 +34,22 @@ def insertValuesToBox(
     parent_frame: tkinter,
     frame: tkinter,
 ):
-    
+
     parent_frame.pack(fill="x", expand="yes", padx=20)
 
     frame.pack(fill="x", expand="yes", padx=20)
-    
+
     values = selectRecord(tree)
 
-    boxes[0].configure(state='normal')
-    
+    boxes[0].configure(state="normal")
+
     positionRecordBoxes(boxes)
     positionRecordLabels(labels)
-
 
     for n, box in enumerate(boxes):
         box.insert(0, values[n])
 
-    boxes[0].configure(state='readonly')
+    boxes[0].configure(state="readonly")
 
     config.btn_st = "Update"
 
@@ -64,12 +60,12 @@ def createNewRecordFrame(
     boxes: list,
     labels: list,
 ):
-    boxes[0].configure(state='normal')
+    boxes[0].configure(state="normal")
 
     positionRecordBoxes(boxes)
     positionRecordLabels(labels)
 
-    boxes[0].configure(state='readonly')
+    boxes[0].configure(state="readonly")
 
     parent_frame.pack(fill="x", expand="yes", padx=20)
     frame.pack(fill="x", expand="yes", padx=20)
