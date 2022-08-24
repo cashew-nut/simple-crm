@@ -1,5 +1,6 @@
 from tkinter import *
 import tkinter
+from tkinter.tix import COLUMN
 import config
 
 
@@ -7,15 +8,19 @@ def clearFrame(frame: tkinter):
     frame.pack_forget()
 
 
-def positionRecordBoxes(bxs: list):
-    for n, b in enumerate(bxs):
+def positionRecordBoxes(boxes: list):
+    for n, b in enumerate(boxes):
         b.delete(0, END)
-        b.grid(row=n, column=2, padx=10, pady=10)
+        b.grid(row=n + 1, column=2, padx=10, pady=10)
 
 
-def positionRecordLabels(lbls: list):
-    for n, l in enumerate(lbls):
-        l.grid(row=n, column=1, padx=10, pady=10)
+def positionRecordLabels(labels: list):
+    for n, l in enumerate(labels):
+        l.grid(row=n + 1, column=1, padx=10, pady=10)
+
+def positionRelatedButtons(btns: list):
+    for n, b in enumerate(btns):
+        b.grid(row=n, column=1, padx=10, pady=10)
 
 
 def selectRecord(tree: tkinter) -> list:
@@ -34,7 +39,7 @@ def insertValuesToBox(
     parent_frame: tkinter,
     frame: tkinter,
 ):
-
+    
     parent_frame.pack(fill="x", expand="yes", padx=20)
 
     frame.pack(fill="x", expand="yes", padx=20)

@@ -139,3 +139,16 @@ def refreshAfterUpdate(
     # refresh tree
     configureTree(tree, data)
     clearFrame(frame)
+
+def relatedTableNames(tbl_name: str, schema: str) -> list:
+    
+    connection = myConnection()
+    
+    r_tbls = pd.read_sql(f"""SELECT
+                            table_name
+                            FROM information_schema.KEY_COLUMN_USAGE
+                            WHERE table_schema = '{schema}'
+                            AND referenced_table_name = '{tbl_name}';""", con=connection
+    )
+    print(r_tbls["TABLE_NAME"].to_list())
+    return r_tbls["TABLE_NAME"].to_list()
