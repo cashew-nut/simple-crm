@@ -4,6 +4,7 @@ import pandas as pd
 import tkinter
 from functions.record_selection import *
 from functions.treeview import *
+import config_files.tables as ct
 
 
 def myConnection():
@@ -20,9 +21,9 @@ def myConnection():
     return connection
 
 
-def pullTable(tbl: str):
+def pullTable(query: str = f"SELECT * FROM {config.schema}.{ct.active_table_name}"):
     connection = myConnection()
-    tbl = pd.read_sql(f"SELECT * FROM simple_crm.{tbl}", con=connection)
+    tbl = pd.read_sql(query, con=connection)
     connection.connect().close()
     return tbl
 
@@ -53,7 +54,7 @@ def saveNew(tree: tkinter, boxes: list, tbl_name: str, frame: tkinter):
         )
         print(f"new record: ({column_string}) VALUES (DEFAULT, {iv_string})")
     except:
-        print(f("insertion faild"))
+        print(("insertion faild"))
 
     refreshAfterUpdate(frame, tree, boxes, tbl_name)
 
@@ -124,9 +125,9 @@ def save(tree: tkinter, boxes: list, tbl_name: str, frame: tkinter):
 
 
 def refreshAfterUpdate(
-    frame: tkinter, tree: tkinter, boxes: list, active_table_name: str
+    frame: tkinter, tree: tkinter, boxes: list, query: str = ct.query,
 ):
-    data = pullTable(active_table_name)
+    data = pullTable(query)
 
     # clear old tree
     for i in tree.get_children():
@@ -150,5 +151,12 @@ def relatedTableNames(tbl_name: str, schema: str) -> list:
                             WHERE table_schema = '{schema}'
                             AND referenced_table_name = '{tbl_name}';""", con=connection
     )
-    print(r_tbls["TABLE_NAME"].to_list())
+    
     return r_tbls["TABLE_NAME"].to_list()
+
+
+def filterTable(frame: tkinter, tree: tkinter, boxes: tkinter, textbox: tkinter) -> pd.DataFrame:
+
+    query = textbox.get("1.0",'end-1c')
+
+    refreshAfterUpdate(frame, tree, boxes, query)

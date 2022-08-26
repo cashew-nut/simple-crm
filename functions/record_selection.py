@@ -3,6 +3,8 @@ import tkinter
 from tkinter.tix import COLUMN
 import config
 
+def packFilter(textbox: tkinter):
+    textbox.pack(fill=X)
 
 def clearFrame(frame: tkinter):
     frame.pack_forget()

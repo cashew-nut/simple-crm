@@ -1,8 +1,11 @@
 from tkinter import *
 from tkinter import ttk
+from tkinter import scrolledtext
+from tkinter.scrolledtext import ScrolledText
 from functions.treeview import *
 from functions.database_ops import *
 from functions.record_selection import *
+from config_files.tables import active_table_name, r_tbl_name, query
 import pandas as pd
 
 
@@ -36,13 +39,17 @@ top_frame.pack(side=TOP, fill=Y, pady=10)
 
 
 
-button_frame = LabelFrame(top_frame, text="Commands")
-button_frame.pack(side=BOTTOM, fill=X, expand="yes", padx=0.5)
-
 # Create a treeview Frame
 tree_frame = Frame(top_frame)
-tree_frame.pack(side=TOP, fill=Y, pady=10)
+tree_frame.pack(fill=Y, pady=10)
 
+filter_field = Text(top_frame, wrap=WORD, width=50, height=5)
+filter_field.insert(END, query)
+filter_field.pack(fill=X)
+
+
+button_frame = LabelFrame(top_frame, text="Commands")
+button_frame.pack(fill=X, expand="yes", padx=0.5)
 
 # create a treeview scrollbar
 tree_scroll = Scrollbar(tree_frame)
@@ -69,6 +76,11 @@ tab_control.add(record_details, text = 'Record Details')
 tab_control.add(related_objects, text = 'Related Objects')
 tab_control.pack(expand=1, fill=BOTH)
 
+# data_scroll = Scrollbar(related_objects, orient=VERTICAL, command=related_objects.yview)
+# data_scroll.pack(side=RIGHT, fill=Y) 
+
+
+
 
 r_parent_frame = Frame(related_objects)
 r_parent_frame.pack()
@@ -90,6 +102,8 @@ fields_frame = LabelFrame(record_details)
 fields_frame.pack()
 
 
+
+
 # create a treeview scrollbar
 related_scroll = Scrollbar(r_tree_frame)
 related_scroll.pack(side=RIGHT)
@@ -100,30 +114,17 @@ related_tree = ttk.Treeview(
 )
 
 # configure scrollbar
-related_scroll.config(command=my_tree.yview)
+related_scroll.config(command=related_tree.yview)
+
+
+
 
 
 #pull the tables
-active_table_name: str = "studies"
-r_tbl_name: str = "study_organisations"
+
 active_table: pd.DataFrame = pullTable(active_table_name)
 r_tbl: pd.DataFrame = pullTable(r_tbl_name)
 r_tbl_ls: list = relatedTableNames(active_table_name, config.schema)
-
-# double click to select.
-def onDouble(selected):
-    insertValuesToBox(my_tree, lbls, bxs, data_frame, fields_frame)
-
-def onDoubleRelated(selected):
-    insertValuesToBox(related_tree, r_lbls, r_bxs, r_parent_frame, r_fields_frame)
-
-def onReturn(selected):
-    save(my_tree, bxs, active_table_name, data_frame, fields_frame)
-
-
-my_tree.bind("<Double-1>", onDouble)
-related_tree.bind("<Double-1>", onDoubleRelated)
-fields_frame.bind("<Return>", onReturn)
 
 
 # adding buttons
@@ -167,6 +168,41 @@ for n, b in enumerate(r_tbl_ls):
 
 positionRelatedButtons(r_buttons)
 
+
+
+# double click to select.
+def onDouble(selected):
+    insertValuesToBox(my_tree, lbls, bxs, data_frame, fields_frame)
+
+def onDoubleRelated(selected):
+    insertValuesToBox(related_tree, r_lbls, r_bxs, r_parent_frame, r_fields_frame)
+
+def onReturn(selected):
+    save(my_tree, bxs, active_table_name, data_frame, fields_frame)
+
+def onReturnFilter(selected):
+    filterTable(data_frame, my_tree, bxs, filter_field)
+
+
+my_tree.bind("<Double-1>", onDouble)
+related_tree.bind("<Double-1>", onDoubleRelated)
+fields_frame.bind("<Return>", onReturn)
+filter_field.bind("<Return>", onReturnFilter)
+
+
+#buttons
+
+filter_button = Button(
+    button_frame,
+    text='Filter Selection',
+    command= filterTable(data_frame, my_tree, bxs, filter_field)
+)
+
+clear_filter_button  = Button(
+    button_frame,
+    text='Clear Filter',
+    command=lambda: refreshAfterUpdate(data_frame, my_tree, bxs, ct.query)
+)
 
 
 select_record_button = Button(
@@ -213,5 +249,9 @@ delete_record_button.grid(row=0, column=3, padx=10, pady=10)
 clear_frame_button.grid(row=0, column=4, padx=10, pady=10)
 
 save_button.grid(row=len(bxs) + 1, column=2, padx=10, pady=10)
+
+filter_button.grid(row=0, column = 5, padx=10, pady=10)
+
+clear_filter_button.grid(row=0, column = 6, padx=10, pady=10)
 
 root.mainloop()
