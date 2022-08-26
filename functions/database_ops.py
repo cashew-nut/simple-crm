@@ -155,8 +155,18 @@ def relatedTableNames(tbl_name: str, schema: str) -> list:
     return r_tbls["TABLE_NAME"].to_list()
 
 
-def filterTable(frame: tkinter, tree: tkinter, boxes: tkinter, textbox: tkinter) -> pd.DataFrame:
+def filterTable(frame: tkinter, tree: tkinter, boxes: tkinter, entry_1: tkinter, entry_2) -> pd.DataFrame:
+    if ';' in entry_2.get() or ';' in entry_1.get():
+        print('cheeky fucker')
+    
+    else:
 
-    query = textbox.get("1.0",'end-1c')
+        if entry_2.get() =='':
+            print('no where condition')
+            query = f"SELECT {entry_1.get()} FROM {config.schema}.{ct.active_table_name}"
+            refreshAfterUpdate(frame, tree, boxes, query)
 
-    refreshAfterUpdate(frame, tree, boxes, query)
+        else:
+            query = f"SELECT {entry_1.get()} FROM {config.schema}.{ct.active_table_name} WHERE {entry_2.get()}"
+
+            refreshAfterUpdate(frame, tree, boxes, query)
