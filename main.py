@@ -4,7 +4,7 @@ from functions.treeview import *
 from functions.database_ops import *
 from functions.record_selection import *
 from config_files.tables import active_table_name, r_tbl_name
-from functions.scroll_frame import ScrollbarFrame
+from functions.scroll_frame import *
 import pandas as pd
 
 
@@ -34,9 +34,29 @@ style.map("Treeview", background=[("selected", "#347083")])
 
 # main frames
 
-top_frame = Frame(root)
-top_frame.pack(side=TOP, fill=Y, pady=10)
+main_frame = Frame(root)
+main_frame.pack(expand=True, fill = BOTH)
 
+canvas = Canvas(main_frame, borderwidth=0)
+
+inner_frame = Frame(canvas)
+
+vsb = Scrollbar(main_frame, orient="vertical", command=canvas.yview)
+canvas.configure(yscrollcommand=vsb.set)
+
+vsb.pack(side="right", fill="y")
+canvas.pack(side="left", fill="both", expand=True)
+canvas.create_window((0,0), window=inner_frame, anchor="nw")
+
+
+canvas.bind("<Configure>", lambda event, canvas=canvas: onFrameConfigure(canvas))
+
+canvas.bind_all("<MouseWheel>", lambda event, canvas=canvas: onMousewheel(event, canvas))
+
+
+
+top_frame = Frame(inner_frame)
+top_frame.pack(side=TOP, fill=Y, pady=10)
 
 
 # Create a treeview Frame
@@ -78,27 +98,11 @@ tree_scroll.config(command=my_tree.yview)
 # this frame holds all the fields for individaul records and related records
 
 
-data_frame = LabelFrame(root, text="Record")
+data_frame = LabelFrame(inner_frame, text="Record")
 
-def onFrameConfigure(canvas):
-    '''Reset the scroll region to encompass the inner frame'''
-    canvas.configure(scrollregion=canvas.bbox("all"))
-
-canvas = Canvas(data_frame, borderwidth=0)
-inner_df = Frame(data_frame)
-tab_control = ttk.Notebook(inner_df)
+tab_control = ttk.Notebook(data_frame)
 record_details = Frame(tab_control)
 related_objects = Frame(tab_control)
-
-
-vsb = Scrollbar(data_frame, orient="vertical", command=canvas.yview)
-canvas.configure(yscrollcommand=vsb.set)
-
-vsb.pack(side="right", fill="y")
-canvas.pack(side="left", fill="both", expand=True)
-canvas.create_window((0,0), window=inner_df, anchor="nw")
-
-data_frame.bind("<Configure>", lambda event, canvas=canvas: onFrameConfigure(canvas))
 
 
 tab_control.add(record_details, text = 'Record Details')
@@ -136,7 +140,7 @@ related_tree = ttk.Treeview(
     r_tree_frame, yscrollcommand=tree_scroll.set, selectmode="extended"
 )
 
-related_scroll.pack(side=RIGHT)
+related_scroll.pack(side=RIGHT, fill=Y)
 # configure scrollbar
 related_scroll.config(command=related_tree.yview)
 
@@ -231,7 +235,7 @@ select_record_button = Button(
 create_new_record_button = Button(
     button_frame,
     text="Create New Record",
-    command=lambda: createNewRecordFrame(data_frame, fields_frame, bxs, lbls),
+    command=lambda: createNewRecordFrame(data_frame, fields_frame, bxs, lbls, canvas),
 )
 
 
@@ -267,5 +271,6 @@ clear_frame_button.grid(row=0, column=4, padx=10, pady=10)
 save_button.grid(row=len(bxs) + 1, column=2, padx=10, pady=10)
 
 clear_filter_button.grid(row=0, column = 5, padx=10, pady=10)
+
 
 root.mainloop()

@@ -1,6 +1,7 @@
 from tkinter import *
 import tkinter
 from tkinter.tix import COLUMN
+from functions.scroll_frame import onFrameConfigure
 import config
 
 def packFilter(textbox: tkinter):
@@ -66,6 +67,7 @@ def createNewRecordFrame(
     frame: tkinter,
     boxes: list,
     labels: list,
+    canvas: tkinter
 ):
     boxes[0].configure(state="normal")
 
@@ -76,5 +78,7 @@ def createNewRecordFrame(
 
     parent_frame.pack(fill="x", expand="yes", padx=20)
     frame.pack(fill="x", expand="yes", padx=20)
+
+    onFrameConfigure(canvas)
 
     config.btn_st = "New"
