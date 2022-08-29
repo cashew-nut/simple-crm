@@ -4,6 +4,7 @@ from functions.treeview import *
 from functions.database_ops import *
 from functions.record_selection import *
 from config_files.tables import active_table_name, r_tbl_name
+from functions.scroll_frame import ScrollbarFrame
 import pandas as pd
 
 
@@ -29,6 +30,7 @@ style.configure(
 
 # Change selected colour
 style.map("Treeview", background=[("selected", "#347083")])
+
 
 # main frames
 
@@ -78,14 +80,30 @@ tree_scroll.config(command=my_tree.yview)
 
 data_frame = LabelFrame(root, text="Record")
 
+def onFrameConfigure(canvas):
+    '''Reset the scroll region to encompass the inner frame'''
+    canvas.configure(scrollregion=canvas.bbox("all"))
 
-tab_control = ttk.Notebook(data_frame)
+canvas = Canvas(data_frame, borderwidth=0)
+inner_df = Frame(data_frame)
+tab_control = ttk.Notebook(inner_df)
 record_details = Frame(tab_control)
 related_objects = Frame(tab_control)
 
+
+vsb = Scrollbar(data_frame, orient="vertical", command=canvas.yview)
+canvas.configure(yscrollcommand=vsb.set)
+
+vsb.pack(side="right", fill="y")
+canvas.pack(side="left", fill="both", expand=True)
+canvas.create_window((0,0), window=inner_df, anchor="nw")
+
+data_frame.bind("<Configure>", lambda event, canvas=canvas: onFrameConfigure(canvas))
+
+
 tab_control.add(record_details, text = 'Record Details')
 tab_control.add(related_objects, text = 'Related Objects')
-tab_control.pack(expand=1, fill=BOTH)
+tab_control.pack(expand=True, fill=BOTH)
 
 r_parent_frame = Frame(related_objects)
 r_parent_frame.pack()
@@ -111,13 +129,14 @@ fields_frame.pack()
 
 # create a treeview scrollbar
 related_scroll = Scrollbar(r_tree_frame)
-related_scroll.pack(side=RIGHT)
+
 
 # Create the treeview
 related_tree = ttk.Treeview(
     r_tree_frame, yscrollcommand=tree_scroll.set, selectmode="extended"
 )
 
+related_scroll.pack(side=RIGHT)
 # configure scrollbar
 related_scroll.config(command=related_tree.yview)
 
@@ -195,14 +214,6 @@ fields_frame.bind("<Return>", onReturn)
 where_entry.bind("<Return>", onReturnFilter)
 select_entry.bind("<Return>", onReturnFilter)
 
-#buttons
-
-# filter_button = Button(
-#     button_frame,
-#     text='Filter Selection',
-#     command= packFilter(query_frame)
-# )
-
 clear_filter_button  = Button(
     button_frame,
     text='Clear Filter',
@@ -255,8 +266,6 @@ clear_frame_button.grid(row=0, column=4, padx=10, pady=10)
 
 save_button.grid(row=len(bxs) + 1, column=2, padx=10, pady=10)
 
-# filter_button.grid(row=0, column = 5, padx=10, pady=10)
-
-clear_filter_button.grid(row=0, column = 6, padx=10, pady=10)
+clear_filter_button.grid(row=0, column = 5, padx=10, pady=10)
 
 root.mainloop()
