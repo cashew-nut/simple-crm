@@ -41,6 +41,7 @@ def insertValuesToBox(
     boxes: list,
     parent_frame: tkinter,
     frame: tkinter,
+    canvas: tkinter
 ):
     
     parent_frame.pack(fill="x", expand="yes", padx=20)
@@ -58,6 +59,8 @@ def insertValuesToBox(
         box.insert(0, values[n])
 
     boxes[0].configure(state="readonly")
+
+    onFrameConfigure(canvas)
 
     config.btn_st = "Update"
 

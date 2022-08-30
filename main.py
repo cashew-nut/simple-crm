@@ -11,7 +11,7 @@ import pandas as pd
 root = Tk()
 root.title("Cash CRM")
 root.iconbitmap()
-root.geometry("1000x800")
+root.geometry("1000x600")
 
 # add style
 style = ttk.Style()
@@ -47,6 +47,7 @@ canvas.configure(yscrollcommand=vsb.set)
 vsb.pack(side="right", fill="y")
 canvas.pack(side="left", fill="both", expand=True)
 canvas.create_window((0,0), window=inner_frame, anchor="nw")
+onFrameConfigure(canvas)
 
 
 canvas.bind("<Configure>", lambda event, canvas=canvas: onFrameConfigure(canvas))
@@ -100,6 +101,7 @@ tree_scroll.config(command=my_tree.yview)
 
 data_frame = LabelFrame(inner_frame, text="Record")
 
+
 tab_control = ttk.Notebook(data_frame)
 record_details = Frame(tab_control)
 related_objects = Frame(tab_control)
@@ -121,6 +123,8 @@ r_tree_frame.pack(side=LEFT, fill=BOTH)
 
 r_fields_frame = LabelFrame(r_parent_frame)
 r_fields_frame.pack(side=RIGHT, fill=BOTH)
+
+
 
 
 
@@ -200,10 +204,10 @@ positionRelatedButtons(r_buttons)
 
 # double click to select.
 def onDouble(selected):
-    insertValuesToBox(my_tree, lbls, bxs, data_frame, fields_frame)
+    insertValuesToBox(my_tree, lbls, bxs, data_frame, fields_frame, canvas)
 
 def onDoubleRelated(selected):
-    insertValuesToBox(related_tree, r_lbls, r_bxs, r_parent_frame, r_fields_frame)
+    insertValuesToBox(related_tree, r_lbls, r_bxs, r_parent_frame, r_fields_frame, canvas)
 
 def onReturn(selected):
     save(my_tree, bxs, active_table_name, data_frame, fields_frame)
@@ -228,7 +232,7 @@ clear_filter_button  = Button(
 select_record_button = Button(
     button_frame,
     text="Select Record",
-    command=lambda: insertValuesToBox(my_tree, lbls, bxs, data_frame, fields_frame),
+    command=lambda: insertValuesToBox(my_tree, lbls, bxs, data_frame, fields_frame, canvas),
 )
 
 
@@ -259,6 +263,19 @@ save_button = Button(
     command=lambda: save(my_tree, bxs, active_table_name, fields_frame),
 )
 
+r_create_new = Button(
+    r_fields_frame,
+    text="Add New",
+)
+
+r_delete= Button(
+    r_fields_frame,
+    text="Delete",
+)
+
+r_create_new.grid(row=len(r_bxs)+1, column = 1, padx=10, pady=10)
+
+r_delete.grid(row=len(r_bxs) + 1, column = 2, padx=10, pady=10)
 
 select_record_button.grid(row=0, column=1, padx=10, pady=10)
 

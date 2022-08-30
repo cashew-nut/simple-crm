@@ -157,7 +157,7 @@ def relatedTableNames(tbl_name: str, schema: str) -> list:
 
 def filterTable(frame: tkinter, tree: tkinter, boxes: tkinter, entry_1: tkinter, entry_2) -> pd.DataFrame:
     if ';' in entry_2.get() or ';' in entry_1.get():
-        print('cheeky fucker')
+        print('multiple statements not allowed')
     
     else:
 
